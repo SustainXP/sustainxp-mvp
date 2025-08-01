@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SustainXP | Sustainability Levels Up</title>
+  <style>
+    /* Dark theme inspired by SustainXP */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #0f172a; /* slate-900 */
+      color: #f1f5f9; /* slate-100 */
+    }
+    .primary {
+      color: #34d399; /* green-400 */
+    }
+    .container {
+      padding: 16px;
+    }
+    .card {
+      background-color: #1f2937; /* slate-800 */
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      margin-bottom: 16px;
+    }
+    .button {
+      background-color: #10b981; /* emerald-500 */
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 8px;
+    }
+    .button:hover {
+      background-color: #059669; /* emerald-600 */
+    }
+    .button-secondary {
+      background-color: #374151; /* slate-700 */
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 8px;
+    }
+    .button-secondary:hover {
+      background-color: #4b5563; /* slate-600 */
+    }
+    nav {
+      background-color: #1e293b; /* slate-800 */
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .nav-right button {
+      margin-left: 8px;
+    }
+    h1, h2, h3 {
+      margin-top: 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border-bottom: 1px solid #334155; /* slate-700 */
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #0f172a; /* slightly darker */
+    }
+    .rtl {
+      direction: rtl;
+    }
+  </style>
+</head>
+<body>
+  <nav id="navbar" style="display:none;">
+    <div class="nav-left">
+      <span class="primary" style="font-size: 1.5rem; font-weight: bold;">SustainXP</span>
+    </div>
+    <div class="nav-right">
+      <button id="langToggle" class="button-secondary">عربي</button>
+      <span id="userName"></span>
+      <button id="logoutBtn" class="button-secondary">Logout</button>
+    </div>
+  </nav>
+
+  <div id="loginPage" class="container">
+    <h1 class="primary" data-i18n="loginTitle">Welcome to SustainXP</h1>
+    <div class="card">
+      <div style="margin-bottom: 12px;">
+        <label data-i18n="name">Name</label><br>
+        <input type="text" id="nameInput" style="width:100%; padding:8px; border-radius:4px; background-color:#334155; color:#f1f5f9; border:none;" />
+      </div>
+      <div style="margin-bottom: 12px;">
+        <label data-i18n="department">Department</label><br>
+        <input type="text" id="deptInput" style="width:100%; padding:8px; border-radius:4px; background-color:#334155; color:#f1f5f9; border:none;" />
+      </div>
+      <button id="loginBtn" class="button" data-i18n="login">Login</button>
+    </div>
+    <button id="loginLangToggle" class="button-secondary" style="margin-top:8px;">عربي</button>
+  </div>
+
+  <div id="dashboardPage" class="container" style="display:none;">
+    <div class="card" style="display:flex; flex-wrap:wrap; gap:16px; justify-content:space-between;">
+      <div style="flex:1; min-width:200px;">
+        <h2 class="primary" data-i18n="carbonFootprint">Carbon Footprint</h2>
+        <p id="footprintValue" style="font-size:1.5rem;">0 kg CO₂</p>
+      </div>
+      <div style="flex:1; min-width:200px;">
+        <h2 class="primary" data-i18n="xpPoints">XP Points</h2>
+        <p id="xpValue" style="font-size:1.5rem;">0</p>
+      </div>
+      <div style="flex:1; min-width:200px;">
+        <h2 class="primary" data-i18n="badges">Badges</h2>
+        <p id="badgesValue" style="font-size:1.5rem;">0</p>
+      </div>
+    </div>
+    <div style="margin-top:16px;">
+      <button class="button" id="btnChallenges" data-i18n="dailyChallenges">Daily Challenges</button>
+      <button class="button" id="btnCalculator" data-i18n="carbonCalculator">Carbon Calculator</button>
+      <button class="button" id="btnLeaderboard" data-i18n="leaderboard">Leaderboard</button>
+      <button class="button" id="btnProof" data-i18n="proofSubmission">Upload Proof</button>
+      <button class="button" id="btnAdmin" style="display:none;" data-i18n="adminPanel">Admin Panel</button>
+      <button class="button" id="btnGoals" data-i18n="goals">Goals & AI Coach</button>
+    </div>
+    <div id="contentArea" style="margin-top:16px;"></div>
+  </div>
+
+<script>
+  // Translation strings
+  const translations = {
+    en: {
+      loginTitle: 'Welcome to SustainXP',
+      name: 'Name',
+      department: 'Department',
+      login: 'Login',
+      logout: 'Logout',
+      carbonFootprint: 'Carbon Footprint',
+      xpPoints: 'XP Points',
+      badges: 'Badges',
+      dailyChallenges: 'Daily Challenges',
+      carbonCalculator: 'Carbon Calculator',
+      leaderboard: 'Leaderboard',
+      proofSubmission: 'Upload Proof (Donation/Volunteer)',
+      adminPanel: 'Admin Panel',
+      distanceKm: 'Commute distance (km)',
+      modeOfTransport: 'Mode of transport',
+      car: 'Car',
+      bus: 'Bus',
+      walk: 'Walk',
+      calculateFootprint: 'Calculate Footprint',
+      challenges: 'Challenges',
+      complete: 'Complete',
+      completed: 'Completed',
+      individual: 'Individual',
+      departmentLeaderboard: 'Department',
+      ocrResult: 'OCR Feature Coming Soon',
+      missions: 'Team Missions',
+      approve: 'Approve',
+      languageSwitch: 'عربي',
+      goals: 'Goals & AI Coach',
+      setGoal: 'Set Your Carbon Reduction Goal (%)',
+      submitGoal: 'Save Goal',
+      currentGoal: 'Current Goal',
+      ecoCoach: 'AI Eco Coach',
+      suggestion: 'Suggestion',
+      qrGenerate: 'Generate QR for Recycling',
+      qrScan: 'Scan QR Code',
+      enterCode: 'Enter Code',
+      goalSaved: 'Goal saved! Keep up the great work!',
+      noGoal: 'No goal set yet.',
+      goalReduction: 'Your target reduction is',
+      loadCommute: 'You haven\'t logged your commute today. Did you walk or drive?',
+      earthHour: 'Tomorrow is Earth Hour. Want to join our global unplug challenge?',
+      randomTip: 'Remember to bring a reusable water bottle today!'
+    },
+    ar: {
+      loginTitle: 'مرحبًا بكم في SustainXP',
+      name: 'الاسم',
+      department: 'القسم',
+      login: 'تسجيل الدخول',
+      logout: 'تسجيل الخروج',
+      carbonFootprint: 'البصمة الكربونية',
+      xpPoints: 'نقاط الخبرة',
+      badges: 'الإنجازات',
+      dailyChallenges: 'التحديات اليومية',
+      carbonCalculator: 'حاسبة الكربون',
+      leaderboard: 'لوحة المتصدرين',
+      proofSubmission: 'رفع دليل (تبرع/تطوع)',
+      adminPanel: 'لوحة المشرف',
+      distanceKm: 'مسافة التنقل (كم)',
+      modeOfTransport: 'وسيلة النقل',
+      car: 'سيارة',
+      bus: 'حافلة',
+      walk: 'مشياً',
+      calculateFootprint: 'احسب البصمة',
+      challenges: 'التحديات',
+      complete: 'إكمال',
+      completed: 'مكتمل',
+      individual: 'فردي',
+      departmentLeaderboard: 'القسم',
+      ocrResult: 'سيتم إضافة خاصية التعرف على النصوص قريباً',
+      missions: 'مهام الفريق',
+      approve: 'الموافقة',
+      languageSwitch: 'English',
+      goals: 'الأهداف والمدرب الذكي',
+      setGoal: 'حدد هدفك لتخفيض البصمة (%)',
+      submitGoal: 'حفظ الهدف',
+      currentGoal: 'الهدف الحالي',
+      ecoCoach: 'المدرب الذكي',
+      suggestion: 'اقتراح',
+      qrGenerate: 'إنشاء رمز QR لإعادة التدوير',
+      qrScan: 'مسح رمز QR',
+      enterCode: 'أدخل الرمز',
+      goalSaved: 'تم حفظ الهدف! استمر في العمل الرائع!',
+      noGoal: 'لا يوجد هدف بعد.',
+      goalReduction: 'هدفك في التخفيض',
+      loadCommute: 'لم تسجل رحلة تنقلك اليوم. هل مشيت أم قدت السيارة؟',
+      earthHour: 'غدًا ساعة الأرض. هل تريد الانضمام لتحدي إطفاء الأجهزة؟',
+      randomTip: 'تذكر إحضار زجاجة ماء قابلة لإعادة الاستخدام اليوم!'
+    }
+  };
+
+  let currentLang = 'en';
+
+  // QR code value (for recycling simulation)
+  let currentQR = null;
+
+  // Load user from localStorage
+  let user = JSON.parse(localStorage.getItem('sxpUser')) || null;
+
+  function t(key) {
+    return translations[currentLang][key] || key;
+  }
+
+  function applyTranslations() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      el.textContent = t(key);
+    });
+    // update language toggle buttons
+    document.getElementById('langToggle').textContent = translations[currentLang].languageSwitch;
+    document.getElementById('loginLangToggle').textContent = translations[currentLang].languageSwitch;
+  }
+
+  function switchLanguage() {
+    currentLang = currentLang === 'en' ? 'ar' : 'en';
+    if (currentLang === 'ar') {
+      document.body.classList.add('rtl');
+    } else {
+      document.body.classList.remove('rtl');
+    }
+    applyTranslations();
+    renderContentArea();
+  }
+
+  function showLogin() {
+    document.getElementById('loginPage').style.display = 'block';
+    document.getElementById('dashboardPage').style.display = 'none';
+    document.getElementById('navbar').style.display = 'none';
+    applyTranslations();
+  }
+
+  function showDashboard() {
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('dashboardPage').style.display = 'block';
+    document.getElementById('navbar').style.display = 'flex';
+    document.getElementById('userName').textContent = user.name;
+    // Show admin button if user is admin
+    if (user.department.toLowerCase() === 'admin') {
+      document.getElementById('btnAdmin').style.display = 'inline-block';
+    }
+    updateStats();
+    applyTranslations();
+  }
+
+  function login() {
+    const name = document.getElementById('nameInput').value.trim();
+    const dept = document.getElementById('deptInput').value.trim();
+    if (!name || !dept) return;
+    user = {
+      name: name,
+      department: dept,
+      xp: 0,
+      badges: 0,
+      footprint: 0,
+      completed: []
+    };
+    localStorage.setItem('sxpUser', JSON.stringify(user));
+    showDashboard();
+  }
+
+  function logout() {
+    user = null;
+    localStorage.removeItem('sxpUser');
+    showLogin();
+  }
+
+  function updateStats() {
+    document.getElementById('xpValue').textContent = user.xp;
+    document.getElementById('badgesValue').textContent = user.badges;
+    document.getElementById('footprintValue').textContent = `${user.footprint.toFixed(2)} kg CO₂`;
+  }
+
+  // Content area rendering
+  function renderContentArea() {
+    const content = document.getElementById('contentArea');
+    content.innerHTML = '';
+    const view = currentView;
+    if (view === 'challenges') {
+      renderChallenges(content);
+    } else if (view === 'calculator') {
+      renderCalculator(content);
+    } else if (view === 'leaderboard') {
+      renderLeaderboard(content);
+    } else if (view === 'proof') {
+      renderProof(content);
+    } else if (view === 'admin') {
+      renderAdmin(content);
+    } else if (view === 'goals') {
+      renderGoals(content);
+    }
+  }
+
+  // Challenges
+  const challengesList = [
+    { id: 1, title: 'Carpool Day', desc: 'Share your ride with colleagues today.' },
+    { id: 2, title: 'Meatless Monday', desc: 'Eat vegetarian meals all day.' },
+    { id: 3, title: 'No Printing Day', desc: 'Use no paper today.' },
+  ];
+
+  function renderChallenges(container) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    const heading = document.createElement('h2');
+    heading.className = 'primary';
+    heading.textContent = t('challenges');
+    card.appendChild(heading);
+    challengesList.forEach(ch => {
+      const row = document.createElement('div');
+      row.style.display = 'flex';
+      row.style.justifyContent = 'space-between';
+      row.style.alignItems = 'center';
+      row.style.borderBottom = '1px solid #334155';
+      row.style.padding = '8px 0';
+
+      const textDiv = document.createElement('div');
+      const title = document.createElement('strong');
+      title.textContent = ch.title;
+      const desc = document.createElement('p');
+      desc.style.fontSize = '0.85rem';
+      desc.style.color = '#94a3b8';
+      desc.textContent = ch.desc;
+      textDiv.appendChild(title);
+      textDiv.appendChild(desc);
+
+      const btn = document.createElement('button');
+      const completed = user.completed.includes(ch.id);
+      btn.className = 'button-secondary';
+      btn.textContent = completed ? t('completed') : t('complete');
+      btn.disabled = completed;
+      btn.onclick = () => {
+        if (!user.completed.includes(ch.id)) {
+          user.completed.push(ch.id);
+          user.xp += 10;
+          user.badges += 1;
+          localStorage.setItem('sxpUser', JSON.stringify(user));
+          updateStats();
+          renderContentArea();
+        }
+      };
+
+      row.appendChild(textDiv);
+      row.appendChild(btn);
+      card.appendChild(row);
+    });
+    container.appendChild(card);
+  }
+
+  // Carbon calculator
+  function renderCalculator(container) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    const heading = document.createElement('h2');
+    heading.className = 'primary';
+    heading.textContent = t('carbonCalculator');
+    card.appendChild(heading);
+
+    const form = document.createElement('form');
+    form.onsubmit = (e) => {
+      e.preventDefault();
+      const distance = parseFloat(distanceInput.value);
+      const mode = modeSelect.value;
+      let factor = 0.21;
+      if (mode === 'bus') factor = 0.11;
+      if (mode === 'walk') factor = 0;
+      const emission = distance * factor;
+      user.footprint = emission;
+      localStorage.setItem('sxpUser', JSON.stringify(user));
+      updateStats();
+      result.textContent = `${t('carbonFootprint')}: ${emission.toFixed(2)} kg CO₂`;
+    };
+
+    // Distance
+    const distanceLabel = document.createElement('label');
+    distanceLabel.textContent = t('distanceKm');
+    const distanceInput = document.createElement('input');
+    distanceInput.type = 'number';
+    distanceInput.step = '0.1';
+    distanceInput.style.width = '100%';
+    distanceInput.style.padding = '8px';
+    distanceInput.style.margin = '4px 0 12px';
+    distanceInput.style.borderRadius = '4px';
+    distanceInput.style.backgroundColor = '#334155';
+    distanceInput.style.color = '#f1f5f9';
+    distanceInput.style.border = 'none';
+
+    // Mode
+    const modeLabel = document.createElement('label');
+    modeLabel.textContent = t('modeOfTransport');
+    const modeSelect = document.createElement('select');
+    modeSelect.style.width = '100%';
+    modeSelect.style.padding = '8px';
+    modeSelect.style.margin = '4px 0 12px';
+    modeSelect.style.borderRadius = '4px';
+    modeSelect.style.backgroundColor = '#334155';
+    modeSelect.style.color = '#f1f5f9';
+    modeSelect.style.border = 'none';
+    ['car','bus','walk'].forEach(opt => {
+      const option = document.createElement('option');
+      option.value = opt;
+      option.textContent = t(opt);
+      modeSelect.appendChild(option);
+    });
+
+    const submitBtn = document.createElement('button');
+    submitBtn.className = 'button';
+    submitBtn.type = 'submit';
+    submitBtn.textContent = t('calculateFootprint');
+
+    const result = document.createElement('p');
+    result.style.marginTop = '8px';
+
+    form.appendChild(distanceLabel);
+    form.appendChild(distanceInput);
+    form.appendChild(modeLabel);
+    form.appendChild(modeSelect);
+    form.appendChild(submitBtn);
+
+    card.appendChild(form);
+    card.appendChild(result);
+    container.appendChild(card);
+  }
+
+  // Leaderboard
+  const leaderboardData = {
+    individuals: [
+      { name: 'Sara', xp: 120 },
+      { name: 'Ahmed', xp: 110 },
+      { name: 'Fatima', xp: 95 },
+    ],
+    departments: [
+      { name: 'HR', xp: 350 },
+      { name: 'Marketing', xp: 310 },
+      { name: 'IT', xp: 290 },
+    ]
+  };
+
+  function renderLeaderboard(container) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    const heading = document.createElement('h2');
+    heading.className = 'primary';
+    heading.textContent = t('leaderboard');
+    card.appendChild(heading);
+
+    // Individuals table
+    const indHeading = document.createElement('h3');
+    indHeading.className = 'primary';
+    indHeading.textContent = t('individual');
+    card.appendChild(indHeading);
+    const indTable = document.createElement('table');
+    leaderboardData.individuals.forEach(row => {
+      const tr = document.createElement('tr');
+      const tdName = document.createElement('td');
+      tdName.textContent = row.name;
+      const tdXp = document.createElement('td');
+      tdXp.textContent = row.xp + ' XP';
+      tr.appendChild(tdName);
+      tr.appendChild(tdXp);
+      indTable.appendChild(tr);
+    });
+    card.appendChild(indTable);
+
+    // Department table
+    const deptHeading = document.createElement('h3');
+    deptHeading.className = 'primary';
+    deptHeading.style.marginTop = '12px';
+    deptHeading.textContent = t('departmentLeaderboard');
+    card.appendChild(deptHeading);
+    const deptTable = document.createElement('table');
+    leaderboardData.departments.forEach(row => {
+      const tr = document.createElement('tr');
+      const tdName = document.createElement('td');
+      tdName.textContent = row.name;
+      const tdXp = document.createElement('td');
+      tdXp.textContent = row.xp + ' XP';
+      tr.appendChild(tdName);
+      tr.appendChild(tdXp);
+      deptTable.appendChild(tr);
+    });
+    card.appendChild(deptTable);
+
+    container.appendChild(card);
+  }
+
+  // Proof upload (stub)
+  function renderProof(container) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    // Heading for proof upload
+    const heading = document.createElement('h2');
+    heading.className = 'primary';
+    heading.textContent = t('proofSubmission');
+    card.appendChild(heading);
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*, .pdf';
+    input.onchange = () => {
+      // Stub: award XP for uploading proof
+      user.xp += 5;
+      localStorage.setItem('sxpUser', JSON.stringify(user));
+      updateStats();
+      alert(t('ocrResult'));
+    };
+    card.appendChild(input);
+
+    // Separator for QR recycling
+    const qrHeader = document.createElement('h3');
+    qrHeader.className = 'primary';
+    qrHeader.style.marginTop = '16px';
+    qrHeader.textContent = t('qrGenerate');
+    card.appendChild(qrHeader);
+
+    // Display area for generated code
+    const qrDisplay = document.createElement('p');
+    qrDisplay.style.fontSize = '0.85rem';
+    qrDisplay.style.color = '#94a3b8';
+    qrDisplay.textContent = '';
+    card.appendChild(qrDisplay);
+
+    // Generate button
+    const generateBtn = document.createElement('button');
+    generateBtn.className = 'button';
+    generateBtn.textContent = t('qrGenerate');
+    generateBtn.onclick = () => {
+      // Generate a simple code for simulation
+      const random = Math.floor(Math.random() * 90000 + 10000);
+      currentQR = 'RVM' + random;
+      qrDisplay.textContent = `QR: ${currentQR}`;
+    };
+    card.appendChild(generateBtn);
+
+    // Scan section
+    const scanHeader = document.createElement('h3');
+    scanHeader.className = 'primary';
+    scanHeader.style.marginTop = '12px';
+    scanHeader.textContent = t('qrScan');
+    card.appendChild(scanHeader);
+    const scanInput = document.createElement('input');
+    scanInput.type = 'text';
+    scanInput.placeholder = t('enterCode');
+    scanInput.style.width = '100%';
+    scanInput.style.padding = '8px';
+    scanInput.style.margin = '4px 0 8px';
+    scanInput.style.borderRadius = '4px';
+    scanInput.style.backgroundColor = '#334155';
+    scanInput.style.color = '#f1f5f9';
+    scanInput.style.border = 'none';
+    const scanBtn = document.createElement('button');
+    scanBtn.className = 'button-secondary';
+    scanBtn.textContent = t('qrScan');
+    scanBtn.onclick = () => {
+      const code = scanInput.value.trim();
+      if (currentQR && code === currentQR) {
+        user.xp += 2;
+        localStorage.setItem('sxpUser', JSON.stringify(user));
+        updateStats();
+        alert('Recycling recorded! Great job.');
+        // reset code
+        currentQR = null;
+        qrDisplay.textContent = '';
+        scanInput.value = '';
+      } else {
+        alert('Invalid or expired code.');
+      }
+    };
+    card.appendChild(scanInput);
+    card.appendChild(scanBtn);
+    container.appendChild(card);
+  }
+
+  // Admin panel
+  function renderAdmin(container) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    const heading = document.createElement('h2');
+    heading.className = 'primary';
+    heading.textContent = t('adminPanel');
+    card.appendChild(heading);
+    const sub = document.createElement('h3');
+    sub.className = 'primary';
+    sub.textContent = t('missions');
+    card.appendChild(sub);
+
+    const missions = [
+      { id: 1, name: 'Reduce Plastic Use Campaign' },
+      { id: 2, name: 'Earth Hour Participation' },
+    ];
+    missions.forEach(m => {
+      const row = document.createElement('div');
+      row.style.display = 'flex';
+      row.style.justifyContent = 'space-between';
+      row.style.alignItems = 'center';
+      row.style.borderBottom = '1px solid #334155';
+      row.style.padding = '8px 0';
+      const name = document.createElement('span');
+      name.textContent = m.name;
+      const btn = document.createElement('button');
+      btn.className = 'button-secondary';
+      btn.textContent = t('approve');
+      btn.onclick = () => alert('Approved');
+      row.appendChild(name);
+      row.appendChild(btn);
+      card.appendChild(row);
+    });
+    const note = document.createElement('p');
+    note.style.fontSize = '0.75rem';
+    note.style.color = '#94a3b8';
+    note.textContent = '(Reports and analytics coming soon)';
+    card.appendChild(note);
+    container.appendChild(card);
+  }
+
+  // Goals & AI Coach
+  function renderGoals(container) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    // Heading
+    const heading = document.createElement('h2');
+    heading.className = 'primary';
+    heading.textContent = t('goals');
+    card.appendChild(heading);
+
+    // Current goal display
+    const current = document.createElement('p');
+    current.style.fontSize = '0.9rem';
+    current.style.color = '#94a3b8';
+    if (user.goal) {
+      current.textContent = `${t('goalReduction')}: ${user.goal}%`;
+    } else {
+      current.textContent = t('noGoal');
+    }
+    card.appendChild(current);
+
+    // Goal form
+    const form = document.createElement('form');
+    form.onsubmit = (e) => {
+      e.preventDefault();
+      const val = parseFloat(goalInput.value);
+      if (!isNaN(val) && val > 0) {
+        user.goal = val;
+        localStorage.setItem('sxpUser', JSON.stringify(user));
+        alert(t('goalSaved'));
+        renderContentArea();
+      }
+    };
+    const goalLabel = document.createElement('label');
+    goalLabel.textContent = t('setGoal');
+    const goalInput = document.createElement('input');
+    goalInput.type = 'number';
+    goalInput.min = '1';
+    goalInput.max = '100';
+    goalInput.step = '1';
+    goalInput.style.width = '100%';
+    goalInput.style.padding = '8px';
+    goalInput.style.margin = '4px 0 12px';
+    goalInput.style.borderRadius = '4px';
+    goalInput.style.backgroundColor = '#334155';
+    goalInput.style.color = '#f1f5f9';
+    goalInput.style.border = 'none';
+    const submitBtn = document.createElement('button');
+    submitBtn.className = 'button';
+    submitBtn.type = 'submit';
+    submitBtn.textContent = t('submitGoal');
+    form.appendChild(goalLabel);
+    form.appendChild(goalInput);
+    form.appendChild(submitBtn);
+    card.appendChild(form);
+
+    // Eco Coach section
+    const ecoHeader = document.createElement('h3');
+    ecoHeader.className = 'primary';
+    ecoHeader.textContent = t('ecoCoach');
+    card.appendChild(ecoHeader);
+    const suggestionPara = document.createElement('p');
+    suggestionPara.style.fontSize = '0.85rem';
+    suggestionPara.style.color = '#94a3b8';
+    // Provide random suggestion each time
+    const tips = [t('loadCommute'), t('earthHour'), t('randomTip')];
+    const randomIdx = Math.floor(Math.random() * tips.length);
+    suggestionPara.textContent = `${t('suggestion')}: ${tips[randomIdx]}`;
+    card.appendChild(suggestionPara);
+
+    container.appendChild(card);
+  }
+
+  // Set initial view
+  let currentView = 'challenges';
+
+  // Attach event listeners
+  document.getElementById('loginBtn').addEventListener('click', login);
+  document.getElementById('logoutBtn').addEventListener('click', logout);
+  document.getElementById('btnChallenges').addEventListener('click', () => { currentView = 'challenges'; renderContentArea(); });
+  document.getElementById('btnCalculator').addEventListener('click', () => { currentView = 'calculator'; renderContentArea(); });
+  document.getElementById('btnLeaderboard').addEventListener('click', () => { currentView = 'leaderboard'; renderContentArea(); });
+  document.getElementById('btnProof').addEventListener('click', () => { currentView = 'proof'; renderContentArea(); });
+  document.getElementById('btnAdmin').addEventListener('click', () => { currentView = 'admin'; renderContentArea(); });
+  document.getElementById('btnGoals').addEventListener('click', () => { currentView = 'goals'; renderContentArea(); });
+  document.getElementById('langToggle').addEventListener('click', switchLanguage);
+  document.getElementById('loginLangToggle').addEventListener('click', switchLanguage);
+
+  // Initialize
+  if (user) {
+    showDashboard();
+    renderContentArea();
+  } else {
+    showLogin();
+  }
+</script>
+</body>
+</html>
